@@ -1,0 +1,82 @@
+
+<html>
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+	<script src="http://code.jquery.com/jquery-latest.min.js"></script>
+	<link href="../stylesheets/login.css" rel="stylesheet">
+	<link href="../stylesheets/animation.css" rel="stylesheet">
+	<script type="text/javascript">
+
+		function alertMake(id_flag, pw_flag, res_code) {
+			if(res_code == "01"){
+				alert("아이디와 비밀번호를 확인해주세요");
+				return;
+			}
+			if (id_flag == "-1" && pw_flag == "0") {
+				alert("잘못된 아이디이거나 없는 아이디입니다.");
+			} else if (id_flag == "0" && pw_flag == "-1") {
+				alert("잘못된 비밀번호입니다.");
+			}else if(id_flag == "0" && pw_flag == "0"){
+				location.replace('http://potestserver.mybluemix.net/admin/stampinfo');
+			}
+		}
+		function goLogin() {
+			var adminid = document.getElementById("adminid").value;
+			var adminpw = document.getElementById("adminpw").value;
+			$.ajax({
+				url: "http://potestserver.mybluemix.net/admin/login",
+				type:"post",
+				data :{adminid:adminid, adminpw:adminpw},
+				dataType : "json",
+				beforeSend:function(){
+					console.log("start");
+					var html = "";
+					html +="<div class='cp-spinner-container' id = 'loader'><div class='cp-spinner-block'> <div class='cp-spinner cp-round'></div></div></div>"
+					$('#login_Wrap').append(html);
+				},
+				success: function(resultData){
+					var res_code = resultData.code;
+					var message = resultData.message;
+					var res_data = resultData.resultData;
+					var id_flag = res_data.id;
+					var pw_flag = res_data.password;
+					alertMake(id_flag, pw_flag, res_code);
+				},
+				complete:function(){
+					console.log("end");
+					$('#loader').remove();
+				},
+				error: function(){ alert("서버와 연결이 끊겼습니다.");}
+			});
+		};
+
+
+	</script>
+
+
+	<title>포천 스탬프</title>
+</head>
+<body>
+<div id="logoFrame"></div>
+<div id="login_Wrap">
+	<form name="login_form" id="login_form" method="post">
+		<input type="hidden" id="test" name="test" value="dsa">
+		<br><br>
+		<img src ="../images/img_login_main.png">
+		<br><br>
+		<img src ="../images/img_login_text.png">
+		<div class="box">
+			<p><input type="text" class="txt1"name="adminid" id="adminid" placeholder="ID" value=""></p>
+			<p><input type="password" class="txt1" name="adminpw" id="adminpw" placeholder="PASSWORD"></p>
+			<p><a href="javascript:goLogin();" class="sBtnType1_1"><span>LOG-IN</span></a></p>
+		</div>
+	</form>
+	<p id = "copy">
+		Copyright 2016 All rights reserved by
+	</p>
+	<p id ="company">THATZIT</p>
+
+</div>
+
+</body>
+</html>

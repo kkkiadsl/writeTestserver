@@ -1,0 +1,307 @@
+<html>
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+	<link href="../stylesheets/default.css" rel="stylesheet">
+	<link href="../stylesheets/animation_fillbody.css" rel="stylesheet">
+	<link rel="stylesheet" href="//code.jquery.com/ui/1.8.18/themes/base/jquery-ui.css" />
+
+	<script src="//ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+	<script src="//code.jquery.com/ui/1.8.18/jquery-ui.min.js"></script>
+	<title>신안 스탬프</title>
+        <style>
+            ul.tabs {
+            margin: 0;
+            padding: 0;
+            float: left;
+            list-style: none;
+            height: 32px;
+            border-bottom: 1px solid #eee;
+            border-left: 1px solid #eee;
+            width: 100%;
+            font-family:"dotum";
+            font-size:12px;
+        }
+        ul.tabs li {
+            float: left;
+            text-align:center;
+            cursor: pointer;
+            width:82px;
+            height: 31px;
+            line-height: 31px;
+            border: 1px solid #eee;
+            border-left: none;
+            font-weight: bold;
+            background: #fafafa;
+            overflow: hidden;
+            position: relative;
+        }
+        ul.tabs li.active {
+            background: #FFFFFF;
+            border-bottom: 1px solid #FFFFFF;
+        }
+        .tab_container {
+            border: 1px solid #eee;
+            border-top: none;
+            clear: both;
+            float: left;
+            width: 780px;
+            background: #FFFFFF;
+        }
+        .tab_content {
+            width: 600px;
+            height: 800px;
+            padding: 20px;
+            font-size: 12px;
+            display: none;
+            margin: 10px auto;
+        }
+        .tab_container .tab_content ul {
+            width:100%;
+            margin:10px 40px;
+            padding:0px;
+            
+        }
+        .tab_container .tab_content ul li {
+            padding:5px;
+            list-style:none;
+        }
+         #container {
+             width: 800px;
+            margin: 0 auto;
+            }
+            #write{
+                border: 2px solid #eee;
+                padding: 10px;
+                width: 500px;
+                margin: 0 auto;
+            }
+            #ing_title{
+                border: 2px solid #eee;
+                padding: 10px;
+                width: 500px;
+                margin: 0 auto;
+            }
+            #tab2{
+                width: 440px;
+                height: 300px;
+                padding: 30px;
+                margin: 20px auto;
+                border: 2px solid #eee;
+            }
+            #ok{
+                float:right;
+                margin-right:70px;
+                width: 50px;
+            }
+    
+            #con{
+                float:left;
+                display : none;
+                margin : 5px 0;
+            }
+    </style>
+
+	<script type="text/javascript"> 
+        
+        $(document).ready(function(){
+			startrender();
+		});  
+        
+        $(function () {
+
+        $(".tab_content").hide();
+        $(".tab_content:first").show();
+
+        $("ul.tabs li").click(function () {
+            $("ul.tabs li").removeClass("active").css("color", "#333");
+            //$(this).addClass("active").css({"color": "darkred","font-weight": "bolder"});
+            $(this).addClass("active").css("color", "darkred");
+            $(".tab_content").hide()
+            var activeTab = $(this).attr("rel");
+            $("#" + activeTab).fadeIn()
+            });
+        });
+        
+        function titleCreate(html,obj,index) {
+            html +="<li>공지 중 : "+obj.title+""
+            html +=" <input type='button' name='down' value='내리기' style='margin-left:10px;'>"
+            html +="<TEXTAREA name='contents' cols=60 rows=5 id='con"+index+"'readonly>"+obj.contents+"</TEXTAREA></li>"
+            return html;
+        };
+            
+        function rowCreate(html,obj,index) {
+			html +="<li><a href='#'onClick='view('con"+index+"')'><input type='text'name='title"+index+"'value="+obj.title+" size='50' class ='title'></a> "         
+            html +="<input type='button' name='up"+index+"' value='등록'> "
+            html +="<input type='button' name='modify"+index+"' value='수정'> "
+            html +="<input type='button' name='delete"+index+"' value='삭제'><br>"
+            html +="<TEXTAREA name='contents' cols=60 rows=10 id='con"+index+"' style='float:left;display : none; margin : 5px 0;'>"+obj.contents+"</TEXTAREA></li>"
+			return html;
+		};
+        
+        function startrender()
+		{
+			$.ajax({
+				url: "http://localhost:8080/api/writes",
+				type:"get",    
+				dataType : "json",
+                beforeSend:function(){
+					console.log("start");
+					var html = "";
+					html +="<div class='cp-spinner-container' id = 'loader'><div class='cp-spinner-block'> <div class='cp-spinner cp-round'></div></div></div>"
+					$('body').append(html);
+				},
+				success: function(data){
+					var title_html="";
+                    var row_html="";
+                    var html="";
+                    $.each(data,function(index,obj){
+                        if(obj.status == 1)
+						title_html=titleCreate(html,obj,index);
+                        else
+                        row_html=rowCreate(html,obj,index);  
+					});
+//                    $('#tab1').empty();
+                    $('#ing_title').append(title_html);
+					$('#write').append(row_html);
+				},
+                complete:function(){
+					console.log("end");
+					$('#loader').remove();
+				},
+				error: function(){ alert("서버와 연결이 끊겼습니다.");}
+			});
+		};
+        
+        function add() {
+			let title = $("#title").val();
+            let contents = $("#contents").val();
+			$.ajax({
+				url: "http://localhost:8080/api/write",
+				type:"post",
+				dataType : "json",
+				beforeSend:function(){
+					console.log("start");
+					var html = "";
+					html +="<li><a href='#'  onClick='view('con')'><input type='text' name='title' value='공지 제목' size='50' class ='title'></a> <input type='button' name='up' value='등록'><input type='button' name='modify' value='수정'><input type='button' name='delete' value='삭제'><br> <TEXTAREA name='contents' value='공지 내용' cols=60 rows=10 id='con'></TEXTAREA> </li>"
+					$('#tab1').append(html);
+				},
+//				success: function(resultData){
+//					var html="";
+//					var res_code = resultData.code;
+//					var message = resultData.message;
+//					var res_data = resultData.resultData;
+//					console.log(resultData);
+//					$.each(write,function(index,obj){
+//						html=rowCreate(html,obj,index);
+//					});
+//					$('#write').empty();
+//					$('#write').append(html);
+//				},
+				complete:function(){
+					console.log("end");
+//					$('#loader').remove();
+				},
+				error: function(){ alert("서버와 연결이 끊겼습니다.");}
+			});
+		};
+        
+        function view(id) {
+        obj = document.getElementById(id);
+            
+        if(obj.style.display == "none") {
+             obj.style.display = "block";
+          }
+          else {
+             obj.style.display = "none";
+          }
+        };
+
+	</script>
+</head>
+<body>
+
+<div id="Wrap">
+	<div id="bodySec">
+		<!--왼쪽영역-->
+		<div id="leftSec">
+			<div class="gnb">
+
+				<ul>
+					<li><img src="../images/img_content_main.png"></li>
+					<hr>
+					<li class="first"><a href="/admin/stampinfo">
+							<img src="../images/img_time.png">
+							실시간현황</a></li>
+					<hr>
+					<li><a href="/admin/stampreq">
+							<img src="../images/img_users.png">
+							신청자관리</a></li>
+					<hr>
+                    <li><a href="/admin/stampreq">
+							<img src="../images/img_write.png">
+							 공지 사항</a></li>
+					<hr>
+				</ul>
+			</div>
+		</div>
+		<!--//왼쪽영역-->
+		<!--컨텐츠영역-->
+		<div id="contsSec">
+			<div class="con_top">
+				<span><strong>관리자</strong>님 환영합니다.</span>
+				<img src="../images/btn_logout.gif" style="vertical-align: middle;padding-left:20px;cursor:hands;cursor:pointer;" onclick="location.href='/admin/logout';">
+			</div>
+
+			<div class="table">
+				<h1><img src = ../images/bullet02.gif> 공지사항</h1>
+				<br>
+				<hr>
+				<br>
+                <div id="container">
+            <ul class="tabs">
+                <li class="active" rel="tab1">리스트</li>
+                <li rel="tab2">글쓰기</li>
+            </ul>
+            <div class="tab_container">
+                <div id="tab1" class="tab_content">
+                    <ul id = 'ing_title'>
+<!--
+                        <li>공지 중 : 
+                         <input type='text' name='text1' value='공지 제목'
+                                size='50' readonly>
+                        <input type="button" name='down' value="내리기">
+                        <input type="button" name='modify' value="수정">
+                        </li>
+-->
+                    </ul><br><br>
+                    <ul id = 'write'>
+                        <li>
+                         <a href="#"  onClick="view('con')"><input type='text' name='title' value='공지 제목' size='50' class ="title"></a>
+                        <input type="button" name='up' value="등록">
+                        <input type="button" name='modify' value="수정">
+                        <input type="button" name='delete' value="삭제">
+                        <br>
+                        <TEXTAREA name='contents' value='공지 내용' cols=60 rows=10 id="con">공지 내용</TEXTAREA>
+                        </li>
+                    </ul>
+                </div>
+               
+                <div id="tab2" class="tab_content">
+                     #제목<br> <input type='text' name='title' id='title' size='50'><br><br>
+                    #내용<br><TEXTAREA name='contents' id='contents' cols=60 rows=10></TEXTAREA><br><br>
+                    <input type="button" name='ok' value="확인" id = "ok"
+                           onClick="add()">
+                </div>
+                
+            </div>
+      
+        </div>
+        
+            </div>
+        </div>
+    </div>    
+</div>
+
+
+</body>
+</html>

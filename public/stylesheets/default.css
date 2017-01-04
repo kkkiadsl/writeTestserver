@@ -1,0 +1,148 @@
+body {
+    background-color: #1f253d;
+    padding: 0px;
+    margin: 0px;
+}
+
+p, div, h1, h2, h3, h4, h5, h6, ul, ol, li, dl, dt, dd, table, th, td, form, fieldset, legend, input, textarea, select, button, code, label, em, span {
+    vertical-align: middle;
+    font-family: Dotum, arial, AppleGothic, sans-serif;
+    color: rgb(133, 133, 133);
+    font-size: 13px;
+    margin: 0px;
+    padding: 0px;
+}
+
+* { margin: 0; padding: 0;
+}
+
+#bodySec {
+    position: relative;
+}
+
+#leftSec {
+    float: left;
+    width: 200px;
+    height: 100%;
+    padding-top: 20px;
+}
+.gnb {
+    float: left;
+    width: 100%;
+}
+
+
+ul, li {
+    list-style: none;
+
+}
+
+.gnb ul li {
+    margin: 10px;
+    font-size: 20px;
+    padding: 20px;
+    text-align: center;
+}
+
+ul li a {
+    color: #fff;
+    text-decoration: none;
+    font-family: 'Nanum Gothic';
+}
+ul li a:hover{
+    color : #ff0055;
+}
+.gnb hr{
+    color: #330000;
+    height: 1px;
+    border: 1px #1f103d inset;
+}
+
+#contsSec {
+    position: static;
+    width: 800px;
+    margin-left: 200px;
+}
+
+
+.con_top {
+    background-color: #1f9eff;
+    border-bottom: 3px double #8faeff;
+    height: 30px;
+    padding: 15px 0 0 20px;
+}
+
+.con_top span {
+    height: 20px;
+    padding-top: 20px;
+    color: #fff;
+}
+
+strong, b {
+    font-weight: bold;
+}
+
+.table {
+    padding: 10px;
+    width: 780px;
+    height: 100%;
+    margin: 0 auto;
+    background: #ededed;
+    overflow:scroll;
+}
+
+::-webkit-scrollbar {
+    display:none;
+
+}
+
+.table h1 {
+    color: #394165;
+    font-size: 23px;
+    padding-left: 15px;
+    font-family: 'Nanum Gothic';
+    margin-top: 20px;
+    letter-spacing: 2px;
+}
+
+.table h2{
+    color: #394165;
+    font-size: 13px;
+    padding-left: 15px;
+    font-family: 'Nanum Gothic';
+    margin-top: 20px;
+    letter-spacing: 1px;
+}
+
+.table th{
+    width: 300px;
+    padding: 6px 0;
+    border-top: 2px solid black;
+    background: #d7d7d7;
+    color: #394165;
+    font-size: 13px;
+    padding-left: 15px;
+    font-family: 'Nanum Gothic';
+    letter-spacing: 2px;
+}
+.table td{
+    width: 30px;
+    text-align: center;
+    margin-top: 20px;
+    padding: 10px;
+    border-bottom: 1px double #c3c3c3;
+}
+
+.paging{
+    text-align: center;
+    width: 100%;
+    margin: 10px 0;
+
+}
+.paging a{
+    margin: 20px;
+}
+.paging a:hover{
+    color: #ff0055;
+}
+

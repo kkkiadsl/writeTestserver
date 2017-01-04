@@ -1,0 +1,76 @@
+body {background:#1d2135;
+    width: 100%;
+    height: 100%;}
+
+#login_Wrap {
+    width: 280px;
+    height: 440px;
+    margin: 100px auto;
+    background-color: #353c5d;
+    text-align: center;
+    border: 1px solid #3d3135;
+    border-radius: 8px;
+    
+}
+
+input.txt1 {
+    background-color: #50587c;
+    border: 1px solid #3d3135;
+    border-radius: 3px;
+    padding: 4px 5px 4px 5px;
+    line-height: 100%;
+    height: 40px;
+    width: 200px;
+    color: #e1e1e1;
+    vertical-align: middle;
+    margin-top: 20px;
+}
+
+.sBtnType1_1:link, .sBtnType1_1:visited {
+    color: #fff;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.sBtnType1_1 {
+    font-size: 20px;
+    font-weight: bold;
+    line-height: 2;
+}
+
+.sBtnType1_1 span {
+    display: block;
+    color: #fff;
+    background: #21a8aa;
+    margin: 0 auto;
+    margin-top: 45px;
+    border-radius: 6px;
+    width: 100%;
+    height: 40px;
+}
+
+#check{
+    float: left;
+    margin: 10px 40px;
+    
+}
+
+#copy{
+    margin: 20px 0;
+    font-size: 13px;
+}
+#company{
+    margin: 15px 0;
+}
+
+p, div, h1, h2, h3, h4, h5, h6, ul, ol, li, dl, dt, dd, table, th, td, form, fieldset, legend, input, textarea, select, button, code, label, em, span {
+    vertical-align: middle;
+    font-family: 'Nanum Gothic', Dotum, arial, AppleGothic, sans-serif;
+    color: rgb(133, 133, 133);
+    margin: 0px;
+    padding: 0px;
+}
+* {
+    margin: 0;
+    padding: 0;
+}

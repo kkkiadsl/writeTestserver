@@ -1,0 +1,187 @@
+<html>
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+	<link href="../stylesheets/default.css" rel="stylesheet">
+	<link href="../stylesheets/animation_fillbody.css" rel="stylesheet">
+	<link rel="stylesheet" href="//code.jquery.com/ui/1.8.18/themes/base/jquery-ui.css" />
+
+	<script src="//ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+	<script src="//code.jquery.com/ui/1.8.18/jquery-ui.min.js"></script>
+	<title>신안 스탬프</title>
+	<script type="text/javascript">
+		var total;
+		$(document).ready(function(){
+			startrender();
+			$("#fileRequest").click(function() {
+				window.location = '/admin/excel/print/stamp_checked';
+			});
+			$("#datepicker1, #datepicker2").datepicker({
+				dateFormat: 'yy-mm-dd'
+			});
+		});
+
+
+		function rowCreate(html,obj,index) {
+			html+=
+					"<div width='200' style='text-align:center;float:left;padding:5px 10px;margin-bottom:20px; margin-top:-10px;'>";
+			html+="<div style='width:135px;height:15px;background-color:#a2a2a2;color:#fff;height:25px;padding-top:7px;'><strong>"+obj.TOWN_NAME+"</strong></div>";
+			html+="<img src='../townimg/"+"town"+obj.TOWN_CODE+"_1.png' width='135' height='90'><br>";
+			html+="<div style='width:135px;height:15px;background-color:#000000;color:#ffff00;height:25px;padding-top:7px;'><strong id = 'user_cnt"+obj.TOWN_CODE+"'>누적:"+obj.cnt+"명</strong></div>";
+			html+="</div>";
+			return html;
+		};
+		function rowUpdate(obj,index) {
+			$("#user_cnt"+obj.TOWN_CODE).html("누적:"+obj.cnt+"명");
+		};
+		function startrender()
+		{
+
+			$.ajax({
+				url: "http://potestserver.mybluemix.net/admin/user/spot/list",
+				type:"get",
+				dataType : "json",
+				beforeSend:function(){
+					console.log("start");
+					var html = "";
+					html +="<div class='cp-spinner-container' id = 'loader'><div class='cp-spinner-block'> <div class='cp-spinner cp-round'></div></div></div>"
+					$('body').append(html);
+				},
+				success: function(resultData){
+					var html="";
+					var res_code = resultData.code;
+					var message = resultData.message;
+					var res_data = resultData.resultData;
+					total = resultData.resultData.total;
+					var townlist = resultData.resultData.townlist;
+					$.each(townlist,function(index,obj){
+						html=rowCreate(html,obj,index);
+					});
+					$('#tab').empty();
+					$('#tab').append(html);
+
+				},
+				complete:function(){
+					console.log("end");
+					$('#loader').remove();
+				},
+				error: function(){ alert("서버와 연결이 끊겼습니다.");}
+			});
+
+		};
+		function goSearch() {
+			let startpicker = $("#datepicker1").val();
+			let endpicker = $("#datepicker2").val();
+			if((startpicker === "" || startpicker === undefined)&&(endpicker === "" || endpicker === undefined)){
+				alert("시작일과 종료일을 입력해주세요.");
+				return;
+			}
+			else if(startpicker === "" || startpicker === undefined){
+				alert("시작일을 입력해주세요.");
+				return;
+			}else if(endpicker === "" || endpicker === undefined){
+				alert("종료일을 입력해주세요.");
+				return;
+			}
+			$.ajax({
+				url: "http://potestserver.mybluemix.net/admin/user/spot/list",
+				type:"post",
+				data:{start_date:startpicker,end_date:endpicker},
+				dataType : "json",
+				beforeSend:function(){
+					console.log("start");
+					var html = "";
+					html +="<div class='cp-spinner-container' id = 'loader'><div class='cp-spinner-block'> <div class='cp-spinner cp-round'></div></div></div>"
+					$('body').append(html);
+				},
+				success: function(resultData){
+					var html="";
+					var res_code = resultData.code;
+					var message = resultData.message;
+					var res_data = resultData.resultData;
+					total = resultData.resultData.total;
+					var townlist = resultData.resultData.townlist;
+					$.each(townlist,function(index,obj){
+						rowUpdate(obj,index);
+					});
+
+				},
+				complete:function(){
+					console.log("end");
+					$('#loader').remove();
+				},
+				error: function(){ alert("서버와 연결이 끊겼습니다.");}
+			});
+		};
+	</script>
+</head>
+<body>
+
+<div id="Wrap">
+	<div id="bodySec">
+		<!--왼쪽영역-->
+		<div id="leftSec">
+			<div class="gnb">
+
+				<ul>
+					<li><img src="../images/img_content_main.png"></li>
+					<hr>
+					<li class="first"><a href="/admin/stampinfo">
+							<img src="../images/img_time.png">
+							실시간현황</a></li>
+					<hr>
+					<li><a href="/admin/stampreq">
+							<img src="../images/img_users.png">
+							신청자관리</a></li>
+					<hr>
+                    <li><a href="/admin/write">
+							<img src="../images/img_write.png">
+							 공지 사항</a></li>
+					<hr>
+				</ul>
+			</div>
+		</div>
+		<!--//왼쪽영역-->
+		<!--컨텐츠영역-->
+		<div id="contsSec">
+			<div class="con_top">
+				<span><strong>관리자</strong>님 환영합니다.</span>
+				<img src="../images/btn_logout.gif" style="vertical-align: middle;padding-left:20px;cursor:hands;cursor:pointer;" onclick="location.href='/admin/logout';">
+			</div>
+
+			<div class="table">
+				<h1><img src = ../images/bullet02.gif> 실시간현황</h1>
+				<br>
+				<hr>
+				<br>
+				<form name="date_form" id="date_form" method="post">
+					<h2> 기간별 방문자 검색 :
+						<input type="text" id="datepicker1" placeholder="시작일을 입력해주세요.">
+						~
+						<input type="text" id="datepicker2" placeholder="종료일을 입력해주세요.">
+						<input type="button" value=" 검 색 " onclick="goSearch();">
+						<input type="button" value=" 날짜 리셋 " onclick="reset();">
+						<input type="button" value=" 엑 셀 " id="fileRequest" class="fileRequest">
+					</h2>
+				</form>
+
+				<br><br>
+				<div id = "tab">
+
+					<!--
+                                            <div width="200" style="text-align:center;float:left;padding:5px 10px;margin-bottom:20px; margin-top:-10px;">
+                                                <div style="width:135px;height:15px;background-color:#a2a2a2;color:#fff;height:25px;padding-top:7px;"><strong>${list.name}</strong></div>
+                                                <img src="${list.img}" width="135" height="90"><br>
+                                                <div style="width:135px;height:15px;background-color:#000000;color:#ffff00;height:25px;padding-top:7px;"><strong>누적:${list.cnt}명</strong></div>
+                                            </div>
+                    -->
+
+				</div>
+			</div>
+		</div>
+		<!--//컨텐츠영역-->
+	</div>
+</div>
+
+
+</body>
+</html>

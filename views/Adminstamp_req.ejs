@@ -1,0 +1,273 @@
+<html>
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+	<title>신안 스탬프</title>
+	<link href="../stylesheets/default.css" rel="stylesheet">
+	<link href="../stylesheets/animation_fillbody.css" rel="stylesheet">
+	<link rel="stylesheet" href="//code.jquery.com/ui/1.8.18/themes/base/jquery-ui.css" />
+
+	<script src="//ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+	<script src="//code.jquery.com/ui/1.8.18/jquery-ui.min.js"></script>
+
+	<script type="text/javascript">
+		var search_mode=0;
+		var pageno = 1;
+		var gift_total = 0;
+		$(document).ready(function(){
+			startrender(pageno);
+			$("#fileRequest").click(function() {
+				window.location = '/admin/excel/print/gift_checked';
+			});
+			$("#datepicker1, #datepicker2").datepicker({
+				dateFormat: 'yy-mm-dd'
+			});
+		});
+
+		function rowCreate(html,obj,index) {
+			var date = new Date(obj.CheckTime);
+			date.setTime(date.getTime()+date.getTimezoneOffset()*60*9);
+			html+="<tr id='row' name ='row'"+index+">";
+			html+="<td id='nick' name='nick'"+index+">"+obj.Nick+"</td>";
+			html+="<td id='grade' name='grade'"+index+">"+obj.grade+"</td>";
+			html+="<td id='phone' name='phone'"+index+">"+obj.phone+"</td>";
+			html+="<td id='created' name='created'"+index+">"+obj.CheckTime+"</td>";
+			html+="</tr>";
+			return html;
+		};
+        
+		function startrender(pageno)
+		{
+
+			$.ajax({
+				url: "http://potestserver.mybluemix.net/admin/gift/list",
+//				url: "http://stamptourpochondev.mybluemix.net/admin/gift/list",
+				type:"get",
+				data:{pageno:pageno},
+				dataType : "json",
+				beforeSend:function(){
+					console.log("start");
+					var html = "";
+					html +="<div class='cp-spinner-container' id = 'loader'><div class='cp-spinner-block'> <div class='cp-spinner cp-round'></div></div></div>"
+					$('body').append(html);
+				},
+				success: function(resultData){
+					var html="";
+					console.log(resultData);
+					var res_code = resultData.code;
+					var message = resultData.message;
+					var res_data = resultData.resultData;
+					gift_total = resultData.resultData.total;
+					var gift_list = resultData.resultData.giftlist;
+					$.each(gift_list,function(index,obj){
+						html=rowCreate(html,obj,index);
+					});
+					$('#dataTable').empty();
+					$('#dataTable').append(html);
+
+				},
+				complete:function(){
+					console.log("end");
+					$('#loader').remove();
+				},
+				error: function(){ alert("서버와 연결이 끊겼습니다.");}
+			});
+
+		};
+		function next() {
+			if(gift_total>=(pageno*20)){
+				pageno = pageno+1;
+			}else{
+				alert("마지막 페이지 입니다.");
+			}
+			if(search_mode===0){
+				startrender(pageno);
+			}else{
+				goSearch();
+			}
+
+		};
+		function prev() {
+			if((pageno-1)>0){
+				pageno = pageno-1;
+				if(search_mode===0){
+					startrender(pageno);
+				}else{
+					goSearch();
+				}
+			}else{
+				alert("첫 페이지 입니다.");
+			}
+		};
+		function goSearch() {
+			let startpicker = $("#datepicker1").val();
+			let endpicker = $("#datepicker2").val();
+			if((startpicker === "" || startpicker === undefined)&&(endpicker === "" || endpicker === undefined)){
+				search_mode = 0;
+				startrender(pageno);
+				return;
+			}
+			else if(startpicker === "" || startpicker === undefined){
+				alert("시작일을 입력해주세요.");
+				return;
+			}else if(endpicker === "" || endpicker === undefined){
+				alert("종료일을 입력해주세요.");
+				return;
+			}
+			search_mode = 1;
+			$.ajax({
+				url: "http://potestserver.mybluemix.net/admin/gift/list",
+//				url: "http://stamptourpochondev.mybluemix.net/admin/gift/list",
+				type:"post",
+				data:{start_date:startpicker,end_date:endpicker,pageno:pageno},
+				dataType : "json",
+				beforeSend:function(){
+					console.log("start");
+					var html = "";
+					html +="<div class='cp-spinner-container' id = 'loader'><div class='cp-spinner-block'> <div class='cp-spinner cp-round'></div></div></div>"
+					$('body').append(html);
+				},
+				success: function(resultData){
+					var html="";
+					var res_code = resultData.code;
+					var message = resultData.message;
+					var res_data = resultData.resultData;
+					gift_total = resultData.resultData.total;
+					var gift_list = resultData.resultData.giftlist;
+					console.log(resultData);
+					$.each(gift_list,function(index,obj){
+						html=rowCreate(html,obj,index);
+					});
+					$('#dataTable').empty();
+					$('#dataTable').append(html);
+				},
+				complete:function(){
+					console.log("end");
+					$('#loader').remove();
+				},
+				error: function(){ alert("서버와 연결이 끊겼습니다.");}
+			});
+		};
+		function goSearchNick() {
+			let nick = $("#key").val();
+			$.ajax({
+				url: "http://potestserver.mybluemix.net/admin/gift/nick",
+//				url: "http://stamptourpochondev.mybluemix.net/admin/gift/nick",
+				type:"post",
+				data:{nick:nick,pageno:pageno},
+				dataType : "json",
+				beforeSend:function(){
+					console.log("start");
+					var html = "";
+					html +="<div class='cp-spinner-container' id = 'loader'><div class='cp-spinner-block'> <div class='cp-spinner cp-round'></div></div></div>"
+					$('body').append(html);
+				},
+				success: function(resultData){
+					var html="";
+					var res_code = resultData.code;
+					var message = resultData.message;
+					var res_data = resultData.resultData;
+					gift_total = resultData.resultData.total;
+					var gift_list = resultData.resultData.giftlist;
+					console.log(resultData);
+					$.each(gift_list,function(index,obj){
+						html=rowCreate(html,obj,index);
+					});
+					$('#dataTable').empty();
+					$('#dataTable').append(html);
+				},
+				complete:function(){
+					console.log("end");
+					$('#loader').remove();
+				},
+				error: function(){ alert("서버와 연결이 끊겼습니다.");}
+			});
+		};
+	</script>
+</head>
+<body>
+
+<div id="Wrap">
+	<div id="bodySec">
+		<div id="leftSec">
+			<div class="gnb">
+
+				<ul>
+					<li><img src="../images/img_content_main.png"></li>
+					<hr>
+					<li class="first"><a href="/admin/stampinfo">
+							<img src="../images/img_time.png">
+							실시간현황</a></li>
+					<hr>
+					<li><a href="/admin/stampreq">
+							<img src="../images/img_users.png">
+							신청자관리</a></li>
+					<hr>
+                    <li><a href="/admin/write">
+							<img src="../images/img_write.png">
+							 공지 사항</a></li>
+					<hr>
+				</ul>
+			</div>
+		</div>
+		<!--//왼쪽영역-->
+		<div id="contsSec">
+
+			<div class="con_top">
+				<span><strong>관리자</strong>님 환영합니다.</span>
+				<img src="../images/btn_logout.gif" style="vertical-align: middle;padding-left:20px;cursor:hands;cursor:pointer;" onclick="location.href='/admin/logout';">
+			</div>
+			<div class="table">
+				<h1><img src="../images/bullet02.gif"> 신청자관리</h1>
+				<div style="height:25px;border-bottom:1px solid #b8b8b8;text-align:right;">※ 해당 닉네임만 검색하시려면 <span style="color:#116fe3;"><strong>닉네임을 입력</strong></span>하시고 검색해주세요.</div>
+				<br>
+				<form name="date_form" id="date_form" method="post">
+					<h2>기간별 신청자 검색 :
+						<input type="text" id="datepicker1" placeholder="시작일을 입력해주세요.">
+						~
+						<input type="text" id="datepicker2" placeholder="종료일을 입력해주세요.">
+						<input type="button" value=" 검 색 " onclick="goSearch();">
+						<input type="button" value=" 날짜 리셋 " onclick="reset();">
+						<input type="button" value=" 엑 셀 " id="fileRequest" class="fileRequest">
+					</h2></form>
+
+				<form name="login_form" id="login_form" method="post">
+					<h2>닉네임 검색 :
+						<input type="hidden" id="page" name="page" value="${PAGE}">
+						<input type="hidden" id="checking" name="checking" value="${CHECK}">
+						<input type="text" placeholder=" 닉네임" id="key" name="key" value="">
+						<input type="button" value=" 검 색 " onclick="goSearchNick();">
+					</h2></form><br>
+
+				<table class="tablesorter" id = "myTable" summary="자유게시판" cellpadding="0" cellspacing="0">
+					<colgroup>
+						<col width="25%">
+						<col width="25%">
+						<col width="25%">
+						<col width="25%">
+					</colgroup>
+					<thead>
+					<tr>
+						<th scope="col">닉네임</th>
+						<th scope="col">등급</th>
+						<th scope="col">전화번호</th>
+						<th scope="col">생성일</th>
+					</tr>
+					</thead>
+					<tbody id = "dataTable">
+
+					</tbody>
+				</table>
+
+			</div>
+
+			<div class="paging">
+				<a href="#" onClick="prev()">
+					<img src="../images/paging_02.gif" alt="첫페이지"></a>
+				<a href="#" onClick="next()">
+					<img src="../images/paging_03.gif" alt="다음 블럭"></a>
+			</div>
+		</div>
+	</div>
+</div>
+</body>
+</html>

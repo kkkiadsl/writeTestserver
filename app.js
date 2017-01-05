@@ -1,31 +1,29 @@
-var express = require('express');
-var app = express();
-var path = require('path');
-var cfenv = require("cfenv");
-var mongoose = require('mongoose');
 
-var db = mongoose.connection;
-db.on('error', console.error);
-db.once('open', function(){
-	console.log("Connected to mongod server");
-});
+/**
+ * Module dependencies.
+ */
 
-mongoose.connect('mongodb://localhost/CRUD')
+const cluster = require('cluster');
+cluster.schedulingPolicy = cluster.SCHED_RR;
+const numCPUs = require('os').cpus().length;
 
-var Book = require('./models/book');
-var Write = require('./models/write');
+if (cluster.isMaster) {
+	// Fork workers.
+	
+	for (var i = 0; i < 2; i++) {
+		cluster.fork();
+	}
 
-app.set('views', __dirname + '/views');
-app.set('view engine', 'ejs');
-app.use(app.router);
+	cluster.on('exit', (worker, code, signal) => {
+		console.log(`worker ${worker.process.pid}`);
+		console.log('exit code = '+code);
+		if(code === 1){
+			cluster.fork();
+		}
+	});
+} else {
+	// Workers can share any TCP connection
+	// In this case it is an HTTP server
 
-app.use(express.static(path.join(__dirname, 'public')));
-
-var port = process.env.PORT || 8080;
-
-require('./routes/index')(app, Write);
-require('./routes/book')(app, Book);
-
-var server = app.listen(port, function(){
-	console.log("Express server has stared on port " + port)
-});
+	require('./server.js');
+}

@@ -1,29 +1,38 @@
+var express = require('express');
+var app = express();
+var path = require('path');
+var cfenv = require("cfenv");
+var mongoose = require('mongoose');
 
-/**
- * Module dependencies.
- */
+var db = mongoose.connection;
+db.on('error', console.error);
+db.once('open', function(){
+	console.log("Connected to mongod server");
+});
 
-const cluster = require('cluster');
-cluster.schedulingPolicy = cluster.SCHED_RR;
-const numCPUs = require('os').cpus().length;
+mongoose.connect('mongodb://localhost/CRUD')
 
-if (cluster.isMaster) {
-	// Fork workers.
-	
-	for (var i = 0; i < 2; i++) {
-		cluster.fork();
-	}
+var Book = require('./models/book');
+var Write = require('./models/write');
 
-	cluster.on('exit', (worker, code, signal) => {
-		console.log(`worker ${worker.process.pid}`);
-		console.log('exit code = '+code);
-		if(code === 1){
-			cluster.fork();
-		}
-	});
-} else {
-	// Workers can share any TCP connection
-	// In this case it is an HTTP server
+app.set('views', __dirname + '/views');
+app.set('view engine', 'ejs');
+app.use(app.router);
 
-	require('./server.js');
-}
+app.use(express.static(path.join(__dirname, 'public')));
+
+var port = process.env.PORT || 8080;
+
+require('./routes/index')(app, Write);
+require('./routes/book')(app, Book);
+
+//get the app environment from Cloud Foundry
+var appEnv = cfenv.getAppEnv();
+
+// start server on the specified port and binding host
+app.listen(appEnv.port, '0.0.0.0', function() {
+  // print a message when the server starts listening
+  console.log("server starting on " + appEnv.url);
+});
+
+
